@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Max Hybrid Training App</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- PANTALLA DE ACCESO (LOGIN / REGISTRO) -->
+  <div id="auth-screen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0d0d0d; z-index: 9999; display: flex; justify-content: center; align-items: center; padding: 20px;">
+    <div class="card" style="width: 100%; max-width: 400px; border: 1px solid #333;">
+      <div class="card-header" style="text-align: center; border-bottom: 1px solid #222; padding-bottom: 15px; margin-bottom: 15px;">
+        <h2 style="color: #ff3b30; letter-spacing: 1px;">MAX HYBRID ACCESS</h2>
+      </div>
+      <form id="authForm" style="display: flex; flex-direction: column; gap: 12px;">
+        <input type="email" id="authEmail" placeholder="Correo electrónico" required style="background: #1a1a1a; color: #fff; padding: 12px; border: 1px solid #333; border-radius: 6px; outline: none;">
+        
+        <div style="position: relative; width: 100%;">
+          <input type="password" id="authPassword" placeholder="Contraseña" required style="background: #1a1a1a; color: #fff; padding: 12px; padding-right: 40px; border: 1px solid #333; border-radius: 6px; outline: none; width: 100%;">
+          <button type="button" id="togglePassword" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 1.1rem; color: #888;">👁️</button>
+        </div>
+
+        <button type="submit" id="authSubmitBtn" style="background: #ff3b30; color: #fff; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; text-transform: uppercase;">INICIAR SESIÓN</button>
+        <button type="button" id="authToggleBtn" style="background: transparent; color: #888; border: 1px dashed #444; padding: 10px; border-radius: 6px; cursor: pointer; font-size: 0.82rem; width: 100%;">¿No tienes cuenta? Regístrate aquí</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- BARRA SUPERIOR -->
+  <header class="top-bar">
+    <button class="hamburger-btn" id="openMenu">☰</button>
+    <div class="brand">MAX HYBRID</div>
+  </header>
+
+  <!-- OVERLAY DETRÁS DEL MENÚ -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- MENÚ LATERAL DESPLEGABLE -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <span class="brand">MENÚ</span>
+      <button class="close-btn" id="closeMenu">✕</button>
+    </div>
+    <a href="#" class="menu-item" data-target="sec-inicio">INICIO</a>
+    <a href="#" class="menu-item" data-target="sec-entrenamiento">ENTRENAMIENTO</a>
+    <a href="#" class="menu-item" data-target="sec-nutricion">NUTRICIÓN</a>
+    <a href="#" class="menu-item" data-target="sec-progreso">PROGRESO</a>
+    <a href="#" class="menu-item" data-target="sec-info">INFO MÍ</a>
+    <a href="#" class="menu-item" id="adminMenuItem" data-target="adminPanel" hidden>ADMINISTRACIÓN</a>
+    <a href="#" class="menu-item" id="logoutBtn" style="color: #ff3b30; margin-top: auto; border-top: 1px solid #222; padding-top: 15px;">CERRAR SESIÓN 🚪</a>
+  </nav>
+
+  <!-- CONTENEDOR PRINCIPAL DE SECCIONES -->
+  <main class="main-content">
+    <!-- Panel administrativo: solo visible para cuentas con role=admin en Supabase -->
+    <section id="adminPanel" class="app-section admin-panel" hidden>
+      <div class="card">
+        <div class="card-header"><h2>ADMINISTRACIÓN <span class="accent">MAX HYBRID</span></h2></div>
+        <p class="admin-help">Elegí un usuario para editar exclusivamente su rutina y su plan nutricional.</p>
+        <div class="admin-actions"><button type="button" id="adminRefreshUsers">ACTUALIZAR USUARIOS</button><button type="button" id="adminSavePlan">GUARDAR PLAN DEL USUARIO</button></div>
+        <div id="adminUsersList" class="admin-users-list"></div>
+        <p id="adminTargetLabel" class="admin-target-label"></p>
+      </div>
+    </section>
+
+    <!-- PESTAÑA 1: INICIO -->
+    <section id="sec-inicio" class="app-section active">
+      <div class="card">
+        <div class="card-header">
+          <h2>¡HOLA! <span class="accent" id="userDisplayName">ATLETA</span></h2>
+        </div>
+        <p style="color: #ccc; font-size: 0.95rem; line-height: 1.5;">Bienvenido a tu panel personalizado de entrenamiento y nutrición. Selecciona una opción del menú lateral para ver tu rutina y dieta asignada para hoy.</p>
+      </div>
+    </section>
+
+    <!-- PESTAÑA 2: ENTRENAMIENTO -->
+    <section id="sec-entrenamiento" class="app-section">
+      
+      <!-- VISTA INDIVIDUAL POR DÍA -->
+      <div class="view-single">
+        <div class="days-bar red">
+          <button class="day-btn active" data-day="lun">LUN</button>
+          <button class="day-btn" data-day="mar">MAR</button>
+          <button class="day-btn" data-day="mie">MIÉ</button>
+          <button class="day-btn" data-day="jue">JUE</button>
+          <button class="day-btn" data-day="vie">VIE</button>
+          <button class="day-btn" data-day="sab">SÁB</button>
+          <button class="day-btn" data-day="dom">DOM</button>
+        </div>
+
+        <div class="card entrenamiento">
+          <div>
+            <div class="card-header">
+              <h2>DÍA <span class="accent" id="entrenamientoDiaTitulo">[ LUN ]</span></h2>
+              <span>EJERCICIOS ✔</span>
+            </div>
+            <p class="rutina-subtitulo" id="entrenamientoEnfoque">Rutina asignada para hoy:</p>
+
+            <div class="ejercicios-lista-container" id="entrenamientoListaEjercicios">
+              <!-- Renderizado dinámico vía JS -->
+            </div>
+          </div>
+          <button type="button" id="btnAgregarEjercicio" class="admin-pencil-btn" style="display:none">＋ AGREGAR EJERCICIO</button>
+          <button class="btn-ver btn-ver-completo">VER COMPLETO</button>
+        </div>
+
+        <!-- SUB-SECCIÓN BIBLIOTECA DE VIDEOS POR GRUPO MUSCULAR -->
+        <div class="ideas-wrapper">
+          <h3 class="ideas-title red">BIBLIOTECA DE EJERCICIOS 📹</h3>
+          <div class="ideas-grid">
+            <div class="idea-square-card red" data-muscle="Pierna Completa"><p>Pierna Completa</p></div>
+            <div class="idea-square-card red" data-muscle="Espalda"><p>Espalda</p></div>
+            <div class="idea-square-card red" data-muscle="Pecho"><p>Pecho</p></div>
+            <div class="idea-square-card red" data-muscle="Hombros"><p>Hombros</p></div>
+            <div class="idea-square-card red" data-muscle="Bíceps"><p>Bíceps</p></div>
+            <div class="idea-square-card red" data-muscle="Tríceps"><p>Tríceps</p></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- VISTA DETALLE DE VIDEOS DEL MÚSCULO SELECCIONADO -->
+      <div class="view-muscle-videos hidden">
+        <button class="btn-volver red" id="btnVolverMusculo">← VOLVER A BIBLIOTECA</button>
+        <h2 class="section-title red" id="muscleTitle">EJERCICIOS DE PIERNA</h2>
+        
+        <div class="scroll-container">
+          <div class="card entrenamiento mb">
+            <div class="card-header">
+              <h2>EJERCICIO #1</h2>
+              <span class="accent">TÉCNICA</span>
+            </div>
+            <div class="media-container">
+              <div class="media-placeholder">▶ REPRODUCIR VIDEO</div>
+            </div>
+            <p class="media-desc">Descripción genérica de la ejecución correcta, postura y rango de movimiento del ejercicio.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- VISTA SEMANAL COMPLETA -->
+      <div class="view-full hidden">
+        <button class="btn-volver red">← VOLVER AL DÍA</button>
+        <h2 class="section-title red">RUTINA SEMANAL COMPLETA</h2>
+        
+        <div class="scroll-container" id="entrenamientoScrollSemanal">
+        </div>
+      </div>
+
+    </section>
+
+    <!-- PESTAÑA 3: NUTRICIÓN -->
+    <section id="sec-nutricion" class="app-section">
+      
+      <!-- VISTA INDIVIDUAL POR DÍA -->
+      <div class="view-single">
+        
+        <div class="days-bar green">
+          <button class="day-btn active" data-day="lun">LUN</button>
+          <button class="day-btn" data-day="mar">MAR</button>
+          <button class="day-btn" data-day="mie">MIÉ</button>
+          <button class="day-btn" data-day="jue">JUE</button>
+          <button class="day-btn" data-day="vie">VIE</button>
+          <button class="day-btn" data-day="sab">SÁB</button>
+          <button class="day-btn" data-day="dom">DOM</button>
+        </div>
+
+        <div class="card nutricion">
+          <div class="card-header">
+            <h2>DÍA <span class="accent" id="nutricionDiaTitulo">[ LUN ]</span></h2>
+            <span>COMIDAS 🥗</span>
+          </div>
+          
+          <div class="comida-item-horizontal">
+            <div class="comida-img-box">
+              <img src="" alt="Plato de Comida" class="comida-img" id="nutricionImg">
+            </div>
+            <div class="comida-info">
+              <h3 class="comida-title" id="nutricionPlatoTitulo">Cargando Plato...</h3>
+              
+              <div class="comida-seccion">
+                <strong>Ingredientes:</strong>
+                <ul class="comida-lista" id="nutricionIngredientes">
+                </ul>
+              </div>
+
+              <div class="comida-seccion">
+                <strong>Preparación:</strong>
+                <p class="comida-text" id="nutricionPreparacion">Cargando preparación...</p>
+              </div>
+
+              <div class="admin-edit-tools">
+                <button class="admin-pencil-btn green" id="btnEditarNutricionDirecto">✏️ Editar Plato y Foto</button>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn-ver btn-ver-completo">VER COMPLETO</button>
+        </div>
+
+        <div class="ideas-wrapper">
+          <h3 class="ideas-title green">IDEAS DE COMIDAS 💡</h3>
+          <div class="ideas-grid">
+            <div class="idea-square-card green"><span class="plus-icon">+</span><p>Ingresar Comida</p></div>
+            <div class="idea-square-card green"><span class="plus-icon">+</span><p>Ingresar Comida</p></div>
+            <div class="idea-square-card green"><span class="plus-icon">+</span><p>Ingresar Comida</p></div>
+            <div class="idea-square-card green"><span class="plus-icon">+</span><p>Ingresar Comida</p></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- VISTA SEMANAL COMPLETA -->
+      <div class="view-full hidden">
+        <button class="btn-volver green">← VOLVER AL DÍA</button>
+        <h2 class="section-title green">PLAN NUTRICIONAL SEMANAL</h2>
+
+        <div class="scroll-container" id="nutricionScrollSemanal">
+        </div>
+      </div>
+
+    </section>
+
+    <!-- PESTAÑA 4: PROGRESO -->
+    <section id="sec-progreso" class="app-section">
+      <div class="card">
+        <div class="card-header"><h2>PROGRESO</h2></div>
+        <p>Aquí verás tus gráficos y registros de carga...</p>
+      </div>
+    </section>
+
+    <!-- PESTAÑA 5: INFO MÍ -->
+    <section id="sec-info" class="app-section">
+      <div class="card">
+        <div class="card-header"><h2>FOTO / SOBRE MÍ</h2><span>IFBB</span></div>
+        <p>Info del entrenador Max, credenciales y presentación.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL DE EDICIÓN DE EJERCICIOS -->
+  <div id="editModal" class="overlay" style="z-index: 9999;">
+    <div class="card" style="width: 100%; max-width: 450px; background: #141414; border: 1px solid #ff3b30; padding: 25px;">
+      <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h2 style="color: #ff3b30; font-size: 1.1rem;">EDITAR EJERCICIO Y VIDEO</h2>
+        <button type="button" id="closeEditModal" style="background: none; border: none; color: #888; font-size: 1.3rem; cursor: pointer;">✕</button>
+      </div>
+      <form id="editExerciseForm" style="display: flex; flex-direction: column; gap: 12px;">
+        <label style="font-size: 0.8rem; color: #aaa;">Título del ejercicio:</label>
+        <input type="text" id="editNombre" required style="background: #1a1a1a; color: #fff; padding: 10px; border: 1px solid #333; border-radius: 6px; outline: none;">
+
+        <label style="font-size: 0.8rem; color: #aaa;">Series y Repeticiones:</label>
+        <input type="text" id="editSeries" required style="background: #1a1a1a; color: #fff; padding: 10px; border: 1px solid #333; border-radius: 6px; outline: none;">
+
+        <label style="font-size: 0.8rem; color: #aaa;">Descripción / Técnica:</label>
+        <textarea id="editTecnica" rows="3" required style="background: #1a1a1a; color: #fff; padding: 10px; border: 1px solid #333; border-radius: 6px; outline: none; resize: none;"></textarea>
+
+        <label style="font-size: 0.8rem; color: #aaa;">Subir video del ejercicio (.mp4 / video):</label>
+        <input type="file" id="editVideoFile" accept="video/*" style="background: #1a1a1a; color: #aaa; padding: 8px; border: 1px dashed #444; border-radius: 6px; cursor: pointer;">
+
+        <button type="submit" class="btn-ver" style="margin-top: 10px; width: 100%; text-align: center; border: 1px solid #ff3b30; color: #ff3b30;">GUARDAR CAMBIOS 💾</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL DE EDICIÓN DE NUTRICIÓN -->
+  <div id="editNutriModal" class="overlay" style="z-index: 9999;">
+    <div class="card" style="width: 100%; max-width: 450px; background: #141414; border: 1px solid #34c759; padding: 25px;">
+      <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h2 style="color: #34c759; font-size: 1.1rem;">EDITAR PLATO Y FOTO</h2>
+        <button type="button" id="closeEditNutriModal" style="background: none; border: none; color: #888; font-size: 1.3rem; cursor: pointer;">✕</button>
+      </div>
+      <form id="editNutriForm" style="display: flex; flex-direction: column; gap: 12px;">
+        <label style="font-size: 0.8rem; color: #aaa;">Título del plato:</label>
+        <input type="text" id="editNutriTitulo" required style="background: #1a1a1a; color: #fff; padding: 10px; border: 1px solid #333; border-radius: 6px; outline: none;">
+
+        <label style="font-size: 0.8rem; color: #aaa;">Ingredientes (uno por línea):</label>
+        <textarea id="editNutriIngredientes" rows="4" placeholder="200 g de pollo&#10;80 g de arroz" style="background: #1a1a1a; color: #fff; padding: 10px; border: 1px solid #333; border-radius: 6px; outline: none; resize: vertical;"></textarea>
+
+        <label style="font-size: 0.8rem; color: #aaa;">Preparación:</label>
+        <textarea id="editNutriPrep" rows="3" required style="background: #1a1a1a; color: #fff; padding: 10px; border: 1px solid #333; border-radius: 6px; outline: none; resize: none;"></textarea>
+
+        <label style="font-size: 0.8rem; color: #aaa;">Subir foto del plato (imagen):</label>
+        <input type="file" id="editNutriImgFile" accept="image/*" style="background: #1a1a1a; color: #aaa; padding: 8px; border: 1px dashed #444; border-radius: 6px; cursor: pointer;">
+
+        <button type="submit" class="btn-ver" style="margin-top: 10px; width: 100%; text-align: center; border: 1px solid #34c759; color: #34c759;">GUARDAR CAMBIOS 💾</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+</body>
+</html>
