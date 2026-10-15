@@ -1,0 +1,586 @@
+/* RESET Y BASES */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background-color: #0d0d0d;
+  color: #ffffff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* BARRA SUPERIOR */
+.top-bar {
+  background-color: #141414;
+  border-bottom: 1px solid #222;
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.hamburger-btn {
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 1.8rem;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.brand {
+  font-size: 1.3rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+/* MENÚ LATERAL */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -260px;
+  width: 250px;
+  height: 100%;
+  background-color: #141414;
+  border-right: 1px solid #2a2a2a;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  transition: left 0.3s ease;
+  z-index: 200;
+}
+
+.sidebar.open {
+  left: 0;
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #222;
+  padding-bottom: 10px;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.menu-item {
+  color: #ccc;
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 12px;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.menu-item:hover {
+  background-color: #222;
+  color: #fff;
+}
+
+/* OVERLAY DETRÁS DEL MENÚ Y MODALES */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 150;
+}
+
+.overlay.active,
+#editModal.active-modal,
+#editNutriModal.active-modal {
+  display: flex !important;
+}
+
+/* CONTENEDOR Y PESTAÑAS DINÁMICAS */
+.main-content {
+  flex: 1;
+  padding: 25px;
+}
+
+.app-section {
+  display: none;
+}
+
+.app-section.active {
+  display: block;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* BARRA DE DÍAS DE LA SEMANA */
+.days-bar {
+  display: flex;
+  justify-content: space-between;
+  gap: 5px;
+  max-width: 500px;
+  margin: 0 auto 15px auto;
+  overflow-x: auto;
+  padding-bottom: 5px;
+}
+
+.day-btn {
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  color: #888;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 0.8rem;
+  cursor: pointer;
+  flex: 1;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.days-bar.red .day-btn.active {
+  background-color: #ff3b30;
+  color: #ffffff;
+  border-color: #ff3b30;
+}
+
+.days-bar.green .day-btn.active {
+  background-color: #34c759;
+  color: #000000;
+  border-color: #34c759;
+}
+
+/* TARJETAS BASE */
+.card {
+  background-color: #121212;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #222;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.card.mb {
+  margin-bottom: 15px;
+}
+
+/* ENTRENAMIENTO (ROJO) */
+.card.entrenamiento {
+  border: 1px solid #ff3b30;
+  box-shadow: inset 0 0 10px rgba(255, 59, 48, 0.1);
+}
+
+.card.entrenamiento h2, 
+.card.entrenamiento .accent {
+  color: #ff3b30;
+}
+
+.card.entrenamiento .btn-ver {
+  border: 1px solid #ff3b30;
+  color: #ff3b30;
+}
+
+.rutina-subtitulo {
+  color: #888;
+  font-size: 0.85rem;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.ejercicios-lista-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.ejercicio-item {
+  background-color: #1a1a1a;
+  border: 1px solid #282828;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: border-color 0.2s ease;
+}
+
+.ejercicio-item.active {
+  border-color: #ff3b30;
+}
+
+.ejercicio-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  cursor: pointer;
+  user-select: none;
+  background-color: #1a1a1a;
+  transition: background-color 0.2s;
+}
+
+.ejercicio-header:hover {
+  background-color: #222;
+}
+
+.ejercicio-info-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.ejercicio-nombre {
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.ejercicio-series {
+  font-size: 0.75rem;
+  background-color: #261515;
+  color: #ff3b30;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid #ff3b30;
+  white-space: nowrap;
+}
+
+.ejercicio-arrow {
+  color: #ff3b30;
+  font-size: 0.8rem;
+  transition: transform 0.3s ease;
+  margin-left: 8px;
+}
+
+.ejercicio-item.active .ejercicio-arrow {
+  transform: rotate(180deg);
+}
+
+.ejercicio-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s cubic-bezier(0, 1, 0, 1);
+  background-color: #141414;
+  padding: 0 12px;
+}
+
+.ejercicio-item.active .ejercicio-body {
+  max-height: 500px;
+  padding: 12px;
+  transition: max-height 0.3s ease-in-out;
+  border-top: 1px solid #282828;
+}
+
+.video-box {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background-color: #000;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.video-box video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ejercicio-ejecucion {
+  font-size: 0.8rem;
+  color: #bbb;
+  line-height: 1.3;
+}
+
+.resumen-ejercicio-item {
+  padding: 6px 0;
+  border-bottom: 1px dashed #222;
+  font-size: 0.82rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.resumen-ejercicio-item:last-child {
+  border-bottom: none;
+}
+
+.resumen-nombre {
+  color: #ddd;
+}
+
+.resumen-series {
+  color: #ff3b30;
+  font-weight: bold;
+}
+
+/* NUTRICIÓN (VERDE) */
+.card.nutricion {
+  border: 1px solid #34c759;
+  box-shadow: inset 0 0 10px rgba(52, 199, 89, 0.1);
+}
+
+.card.nutricion h2, 
+.card.nutricion .accent {
+  color: #34c759;
+}
+
+.card.nutricion .btn-ver {
+  border: 1px solid #34c759;
+  color: #34c759;
+}
+
+.comida-item-horizontal {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  background-color: #181818;
+  border: 1px solid #282828;
+  border-radius: 10px;
+  padding: 15px;
+  margin: 10px 0;
+}
+
+.comida-img-box {
+  width: 130px;
+  height: 130px;
+  min-width: 85px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 50px;
+  background-color: #222;
+  border: 1px solid #333;
+}
+
+.comida-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.comida-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.comida-title {
+  color: #34c759;
+  font-size: 1.05rem;
+  font-weight: bold;
+}
+
+.comida-seccion {
+  font-size: 0.82rem;
+  color: #ccc;
+}
+
+.comida-seccion strong {
+  color: #fff;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.comida-lista {
+  list-style-type: disc;
+  padding-left: 18px;
+  margin: 0;
+  color: #bbb;
+}
+
+.comida-lista li {
+  margin-bottom: 3px;
+  line-height: 1.3;
+}
+
+.comida-text {
+  font-size: 0.82rem;
+  color: #aaa;
+  line-height: 1.4;
+}
+
+/* SUB-SECCIÓN DE CARDS / GRILLA */
+.ideas-wrapper {
+  max-width: 500px;
+  margin: 25px auto 0 auto;
+}
+
+.ideas-title {
+  font-size: 0.95rem;
+  margin-bottom: 12px;
+  letter-spacing: 0.5px;
+  font-weight: bold;
+}
+
+.ideas-title.red { color: #ff3b30; }
+.ideas-title.green { color: #34c759; }
+
+.ideas-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.idea-square-card {
+  background-color: #141414;
+  border-radius: 12px;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.idea-square-card.red { border: 1px dashed #ff3b30; }
+.idea-square-card.red:hover { background-color: #1f1414; border-style: solid; }
+.idea-square-card.green { border: 1px dashed #34c759; }
+.idea-square-card.green:hover { background-color: #141f16; border-style: solid; }
+
+.plus-icon {
+  font-size: 2rem;
+  color: #34c759;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.idea-square-card p {
+  color: #dddddd;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* BOTÓN VOLVER Y TÍTULOS */
+.btn-volver {
+  background: transparent;
+  border: none;
+  font-weight: bold;
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin-bottom: 15px;
+  display: block;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: left;
+}
+
+.btn-volver.red { color: #ff3b30; }
+.btn-volver.green { color: #34c759; }
+
+.section-title {
+  text-align: center;
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+  letter-spacing: 1px;
+}
+
+.section-title.red { color: #ff3b30; }
+.section-title.green { color: #34c759; }
+
+.scroll-container {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #222;
+  padding-bottom: 10px;
+}
+
+.btn-ver {
+  background: transparent;
+  padding: 8px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 0.8rem;
+  align-self: flex-start;
+  margin-top: 15px;
+}
+
+/* HERRAMIENTAS DE EDICIÓN DIRECTA EXCLUSIVAS PARA LUCHO */
+.admin-edit-tools {
+  display: none !important;
+}
+
+body.is-admin .admin-edit-tools {
+  display: flex !important;
+  gap: 8px;
+  align-items: center;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.admin-pencil-btn {
+  background: #1a1a1a;
+  border: 1px solid #ff3b30;
+  color: #ff3b30;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: bold;
+  transition: background 0.2s, color 0.2s;
+}
+
+.admin-pencil-btn:hover {
+  background: #ff3b30;
+  color: #ffffff;
+}
+
+.admin-pencil-btn.green {
+  border-color: #34c759;
+  color: #34c759;
+}
+
+.admin-pencil-btn.green:hover {
+  background: #34c759;
+  color: #000000;
+}
+
+.admin-trash-btn {
+  background: #1a1a1a;
+  border: 1px solid #666;
+  color: #aaa;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: bold;
+}
+
+.admin-trash-btn:hover {
+  background: #333;
+  color: #fff;
+}
